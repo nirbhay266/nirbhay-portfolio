@@ -6,13 +6,12 @@
   <div class="auth-card">
     <p class="eyebrow">Private area</p>
     <h2 id="auth-title">Portfolio Editor</h2>
-    <p id="auth-message">Create an owner PIN to protect this browser's editor.</p>
+    <p id="auth-message">Create an owner password for this browser's editor. Use at least 8 characters.</p>
     <form id="auth-form">
-      <label>Owner PIN<input id="owner-pin" type="password" inputmode="numeric" minlength="4" required autocomplete="new-password"></label>
+      <label>Owner password<input id="owner-pin" type="password" minlength="8" required autocomplete="new-password"></label>
       <button class="primary" type="submit" id="auth-submit">Create PIN</button>
     </form>
-    <button class="forgot-pin" type="button" id="forgot-pin">Forgot PIN? Reset this browser</button>
-    <p class="auth-note">This is a static browser-only lock. Real access control requires hosting the editor behind server authentication.</p>
+    <p class="auth-note"><b>Security notice:</b> this editor stores data in this browser only. There is no safe Forgot Password option on a static GitHub Pages site. Do not use this as a shared or production CMS; a real protected editor requires server-side accounts, sessions, reset tokens, and authorization.</p>
   </div>
 </section>
 <header><a href="../index.html">← View portfolio</a><h1>Portfolio Editor</h1><button id="lock-editor" class="secondary" type="button">Lock editor</button><button id="save-all" class="primary">Save changes</button></header>

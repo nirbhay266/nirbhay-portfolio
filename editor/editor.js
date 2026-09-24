@@ -1,4 +1,7 @@
 const authStorageKey = "portfolioEditorPin";
+const authAttemptsKey = "portfolioEditorAttempts";
+const maxAuthAttempts = 5;
+const lockoutMs = 15 * 60 * 1000;
 const authHash = async (value) => {
   if (window.crypto?.subtle) {
     const bytes = new TextEncoder().encode(value);
@@ -8,30 +11,40 @@ const authHash = async (value) => {
   return btoa(value);
 };
 const authForm = document.querySelector("#auth-form");
-if (localStorage.getItem(authStorageKey)) {
+const storedAuthPin = localStorage.getItem(authStorageKey);
+const authAttempts = JSON.parse(localStorage.getItem(authAttemptsKey) || '{"count":0,"lockedUntil":0}');
+if (storedAuthPin) {
   document.querySelector("#auth-message").textContent = "Enter your owner PIN to open the editor.";
   document.querySelector("#auth-submit").textContent = "Unlock editor";
   document.querySelector("#owner-pin").autocomplete = "current-password";
 }
-document.querySelector("#forgot-pin").addEventListener("click", () => {
-  const confirmed = window.confirm("Reset the editor PIN on this browser? Your projects, certificates, photo, resume, and other portfolio data will not be deleted.");
-  if (!confirmed) return;
-  localStorage.removeItem(authStorageKey);
-  document.querySelector("#auth-message").textContent = "PIN reset. Create a new owner PIN.";
-  document.querySelector("#auth-submit").textContent = "Create PIN";
-  document.querySelector("#owner-pin").value = "";
-  document.querySelector("#owner-pin").autocomplete = "new-password";
-});
 authForm.addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (authAttempts.lockedUntil > Date.now()) {
+    const minutes = Math.ceil((authAttempts.lockedUntil - Date.now()) / 60000);
+    document.querySelector("#auth-message").textContent = `Too many failed attempts. Try again in ${minutes} minute(s).`;
+    return;
+  }
   const pin = document.querySelector("#owner-pin").value;
-  if (pin.length < 4) return;
+  if (pin.length < 8) {
+    document.querySelector("#auth-message").textContent = "Use at least 8 characters. A 4-digit PIN is not secure.";
+    return;
+  }
   const storedPin = localStorage.getItem(authStorageKey);
   if (storedPin && storedPin !== await authHash(pin)) {
+    authAttempts.count += 1;
+    if (authAttempts.count >= maxAuthAttempts) {
+      authAttempts.count = 0;
+      authAttempts.lockedUntil = Date.now() + lockoutMs;
+    }
+    localStorage.setItem(authAttemptsKey, JSON.stringify(authAttempts));
     document.querySelector("#auth-message").textContent = "That PIN is not correct.";
     return;
   }
-  if (!storedPin) localStorage.setItem(authStorageKey, await authHash(pin));
+  if (!storedPin) {
+    localStorage.setItem(authStorageKey, await authHash(pin));
+  }
+  localStorage.removeItem(authAttemptsKey);
   document.body.classList.remove("editor-locked");
   document.querySelector("#auth-message").textContent = "Editor unlocked.";
 });
