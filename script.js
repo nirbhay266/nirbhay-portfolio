@@ -4,7 +4,6 @@ const modalContent = document.querySelector("#modal-content");
 const filters = document.querySelectorAll(".filter");
 const menuButton = document.querySelector(".menu-button");
 const nav = document.querySelector(".nav");
-const imageUpload = document.querySelector("#profile-upload");
 const profileImage = document.querySelector("#profile-image");
 const savedPortfolio = JSON.parse(localStorage.getItem("portfolioData") || "null");
 if (savedPortfolio && savedPortfolio.profileSeedVersion !== 1) {
@@ -41,9 +40,20 @@ function projectCard(project, index) {
   const thumbnail = project.thumbnail || project.images?.[0] || "assets/profile-placeholder.svg";
   const workLink = project.projectUrl || project.live || project.github || project.linkedin || "#";
   return `<article class="project-card" data-tool="${project.tool}" data-index="${index}" tabindex="0">
-    <div class="project-thumb ${tone}"><img src="${thumbnail}" alt="${project.title} project thumbnail"><span class="tool-tag">${project.tool}</span></div>
+    <div class="project-thumb ${tone}"><img src="${thumbnail}" alt="${project.title} project thumbnail"><span class="tool-tag">${technologyBadge(project.tool)}${project.tool}</span></div>
     <div class="project-body"><h3>${project.title}</h3><p class="project-domain"><b>Domain/Function:</b> ${project.domain || "Data & Business Analytics"}</p><p>${project.summary || ""}</p><div class="project-footer"><a class="project-link" href="${workLink}" target="_blank" rel="noreferrer">See My Work ↗</a><span class="project-tool">${project.tool} Project</span></div></div>
   </article>`;
+}
+
+function technologyBadge(name) {
+  const key = technologyKey(name);
+  const supported = ["python", "sql", "excel", "power-bi", "adf"];
+  const icon = supported.includes(key) ? key : "generic";
+  return `<img class="technology-logo" src="assets/technologies/${icon}.svg" alt="" aria-hidden="true">`;
+}
+
+function technologyKey(name) {
+  return String(name || "other").toLowerCase().replace(/power bi/g, "power-bi").replace(/azure data factory/g, "adf").replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
 }
 
 function renderProjects(filter = "all") {
@@ -70,9 +80,9 @@ filters.forEach((filter) => filter.addEventListener("click", () => {
 document.querySelector(".modal-close").addEventListener("click", () => modal.close());
 menuButton.addEventListener("click", () => nav.classList.toggle("open"));
 nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => nav.classList.remove("open")));
-imageUpload.addEventListener("change", (event) => {
-  const [file] = event.target.files;
-  if (file && file.type.startsWith("image/")) profileImage.src = URL.createObjectURL(file);
+profileImage.addEventListener("error", () => {
+  profileImage.removeAttribute("src");
+  profileImage.alt = "Nirbhay Kumar profile photo";
 });
 renderProjects();
 
@@ -93,7 +103,7 @@ if (savedPortfolio) {
   Object.entries(socialMap).forEach(([key, selector]) => { if (basic[key]) document.querySelector(selector).href = basic[key]; });
   if (basic.email) document.querySelector(".contact-links a[href^='mailto:']").href = `mailto:${basic.email}`;
   if (basic.phone) { const phoneLink = document.querySelector(".contact-links a[href^='tel:']"); phoneLink.href = `tel:${basic.phone.replace(/[^\d+]/g, "")}`; phoneLink.textContent = basic.phone; }
-  if (savedPortfolio.skills?.length) document.querySelector("#skills-list").innerHTML = `<div><h3>Skills</h3>${savedPortfolio.skills.map((skill) => `<span>${skill}</span>`).join("")}</div>`;
+  if (savedPortfolio.skills?.length) document.querySelector("#skills-list").innerHTML = `<div><h3>Skills</h3>${savedPortfolio.skills.map((skill) => `<span data-tech="${technologyKey(skill)}">${technologyBadge(skill)}${skill}</span>`).join("")}</div>`;
   if (savedPortfolio.experience?.length) document.querySelector("#experience-list").innerHTML = savedPortfolio.experience.map((item) => `<article><time>${item.period}</time><div><h3>${item.role}</h3><p>${item.company}</p><p>${item.description}</p></div></article>`).join("");
   if (savedPortfolio.certificates?.length) {
     document.querySelector("#certificate-count").textContent = String(savedPortfolio.certificates.length).padStart(2, "0");
