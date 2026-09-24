@@ -47,9 +47,10 @@ function projectCard(project, index) {
 
 function technologyBadge(name) {
   const key = technologyKey(name);
-  const supported = ["python", "sql", "excel", "power-bi", "adf"];
-  const icon = supported.includes(key) ? key : "generic";
-  return `<img class="technology-logo" src="assets/technologies/${icon}.svg" alt="" aria-hidden="true">`;
+  const labels = { python: "Py", sql: "SQL", excel: "X", "power-bi": "BI", adf: "ADF", generic: "•" };
+  const colors = { python: "#3776ab", sql: "#1479b8", excel: "#217346", "power-bi": "#f2c811", adf: "#087cd1", generic: "#54645c" };
+  const icon = labels[key] ? key : "generic";
+  return `<svg class="technology-logo" viewBox="0 0 32 32" role="img" aria-label="${name} logo"><rect width="32" height="32" rx="7" fill="${colors[icon]}"></rect><text x="16" y="20" fill="${icon === "power-bi" ? "#624d00" : "#fff"}" font-size="${icon === "adf" ? "7" : "9"}" text-anchor="middle" font-family="Arial" font-weight="700">${labels[icon]}</text></svg>`;
 }
 
 function technologyKey(name) {
