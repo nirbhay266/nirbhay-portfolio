@@ -14,7 +14,7 @@ const authForm = document.querySelector("#auth-form");
 const storedAuthPin = localStorage.getItem(authStorageKey);
 const authAttempts = JSON.parse(localStorage.getItem(authAttemptsKey) || '{"count":0,"lockedUntil":0}');
 if (storedAuthPin) {
-  document.querySelector("#auth-message").textContent = "Enter your owner PIN to open the editor.";
+  document.querySelector("#auth-message").textContent = "Enter the owner password saved in this browser.";
   document.querySelector("#auth-submit").textContent = "Unlock editor";
   document.querySelector("#owner-pin").autocomplete = "current-password";
 }
@@ -27,7 +27,7 @@ authForm.addEventListener("submit", async (event) => {
   }
   const pin = document.querySelector("#owner-pin").value;
   if (pin.length < 8) {
-    document.querySelector("#auth-message").textContent = "Use at least 8 characters. A 4-digit PIN is not secure.";
+    document.querySelector("#auth-message").textContent = "Use at least 8 characters.";
     return;
   }
   const storedPin = localStorage.getItem(authStorageKey);
@@ -38,7 +38,7 @@ authForm.addEventListener("submit", async (event) => {
       authAttempts.lockedUntil = Date.now() + lockoutMs;
     }
     localStorage.setItem(authAttemptsKey, JSON.stringify(authAttempts));
-    document.querySelector("#auth-message").textContent = "That PIN is not correct.";
+    document.querySelector("#auth-message").textContent = "That password is not correct for this browser.";
     return;
   }
   if (!storedPin) {
@@ -51,7 +51,7 @@ authForm.addEventListener("submit", async (event) => {
 document.querySelector("#lock-editor").addEventListener("click", () => {
   document.body.classList.add("editor-locked");
   document.querySelector("#owner-pin").value = "";
-  document.querySelector("#auth-message").textContent = "Enter your owner PIN to open the editor.";
+  document.querySelector("#auth-message").textContent = "Enter the owner password saved in this browser.";
 });
 const storageKey = "portfolioData";
 const defaults = { basic: { name: "Nirbhay Kumar", title: "Data Aspirant & Data Engineer", email: "nirbhaykkr6@gmail.com", phone: "+91 9905882526", location: "East Champaran, India", tagline: "I build analytical solutions that turn raw data into meaningful business insights using SQL, Power BI, Python, DAX, and ETL.", about: "Hi, I’m Nirbhay Kumar, a Data Aspirant with a strong foundation in Data Analytics and Business Intelligence. I specialize in SQL, Power BI, Python, DAX, and ETL, and enjoy building end-to-end analytical solutions. I am pursuing a Master of Computer Applications from Lovely Professional University.", learning: "Advanced Power BI (DAX) · Apache Spark · PySpark · Databricks · Azure", linkedin: "https://www.linkedin.com/in/nirbhay-kumar-32b947262/", github: "https://github.com/nirbhay266", kaggle: "https://www.kaggle.com/nirbhaykkr6", youtube: "https://www.youtube.com/" }, skills: ["Excel", "Power BI", "SQL", "Python", "Java", "NumPy", "Pandas", "Spark", "PySpark", "Snowflake", "Git"], experience: [], projects: window.portfolioProjects || [], certificates: [{ name: "Excel: Mother of Business Intelligence", provider: "Codebasics", year: "2026", link: "" }, { name: "Get Job Ready: Power BI Data Analytics", provider: "Codebasics", year: "2026", link: "" }, { name: "SQL Beginner to Advanced for Data Professionals", provider: "Codebasics", year: "2026", link: "" }] };
